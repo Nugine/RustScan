@@ -61,7 +61,7 @@ impl Scanner {
             }
 
             if sockets.len() >= self.batch_size.into() {
-                let mut results = self.scan_range(&sockets).await;
+                let mut results = self.scan_sockets(&sockets).await;
                 open_sockets.append(&mut results);
                 sockets = Vec::new();
             }
@@ -70,7 +70,7 @@ impl Scanner {
         // This will happen if we have a number of sockets remaining
         // that is lower than the batch size.
         if !sockets.is_empty() {
-            let mut results = self.scan_range(&sockets).await;
+            let mut results = self.scan_sockets(&sockets).await;
             open_sockets.append(&mut results);
         }
 
@@ -79,7 +79,7 @@ impl Scanner {
 
     /// Given a slice of sockets, scan them all.
     /// Returns a vector of open sockets.
-    async fn scan_range(&self, sockets: &[SocketAddr]) -> Vec<SocketAddr> {
+    async fn scan_sockets(&self, sockets: &[SocketAddr]) -> Vec<SocketAddr> {
         let mut ftrs = FuturesUnordered::new();
         for socket in sockets {
             ftrs.push(self.scan_socket(socket));
